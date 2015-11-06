@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import os.path
 import matplotlib.pyplot as plt
+from random import random
 from scipy.stats import pearsonr
 
 def convertCSV(filestem):
@@ -60,7 +61,7 @@ def correlateTimeseries(A, B):
 	return r[1]
 
 # Load the wavelet database
-filestem = '/Users/goocy/Downloads/Stock-Similarity-Prediction/bitfinexUSD'
+filestem = 'bitfinexUSD'
 df = convertCSV(filestem)
 
 # See how much memory we're using
@@ -74,12 +75,12 @@ df['price'] = np.log(df['price'])
 
 # Generate a data template
 comparisonLength = 43200 # in seconds, 12 hours
-templateStartIndex = int(len(df) * 0.52)
+templateStartIndex = int(len(df) * random()*0.8)
 template = extractSegment(df, templateStartIndex, comparisonLength)
 
 # Sweep the existing data series for a match with the template
 maxLen = len(df) - comparisonLength - 1
-maxLen = 200 # in data poin
+maxLen = 800 # in data points
 similarity = np.zeros([maxLen,])
 xScale = xrange(maxLen)
 previousPercentage = 0
@@ -96,7 +97,7 @@ strongestIndex = np.argmax(similarity)
 segment = extractSegment(df, 15000+strongestIndex, comparisonLength, fade = False)
 template = extractSegment(df, templateStartIndex, comparisonLength, fade = False)
 plt.subplot(211)
-plt.plot(segment['price'].values[-3600,-1])
+plt.plot(segment['date'], segment['price'])
 plt.subplot(212)
-plt.plot(template['price'].values[-3600,-1])
+plt.plot(template['date'], template['price'])
 plt.show()
